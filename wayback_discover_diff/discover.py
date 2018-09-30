@@ -5,21 +5,18 @@ import datetime
 import cProfile
 from math import ceil
 import struct
+import http.client
 import base64
 from itertools import groupby
 import xxhash
 from celery import Task
-import urllib3
+from urllib.parse import urlparse
 import redis
 from simhash import Simhash
 from surt import surt
 from lxml.html import fromstring, tostring
 from lxml.html import html5parser
 from lxml.html.clean import clean_html
-
-# https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
-urllib3.disable_warnings()
-
 
 class Discover(Task):
     """Custom Celery Task class.
@@ -31,7 +28,7 @@ class Discover(Task):
     def __init__(self, cfg):
         self.simhash_size = cfg['simhash']['size']
         self.simhash_expire = cfg['simhash']['expire_after']
-        self.http = urllib3.PoolManager(retries=urllib3.Retry(3, redirect=1))
+        self.http = http.client.HTTPConnection("web.archive.org")
         redis_host = cfg['redis']['host']
         redis_port = cfg['redis']['port']
         redis_db = cfg['redis']['db']
@@ -113,9 +110,21 @@ class Discover(Task):
         if (i - 1) % 10 == 0:
             self.update_state(task_id=self.job_id, state='PENDING',
                               meta={'info': str(i - 1) + ' captures have been processed'})
-        response = self.http.request('GET', 'http://web.archive.org/web/' + snapshot + 'id_/' + self.url)
+        response = self.make_request('/web/' + snapshot + 'id_/' + self.url, 0)
         self._log.info('calculating simhash for snapshot %d out of %d', i, self.total)
-        return response.data.decode('utf-8', 'ignore')
+        return response
+
+    def make_request(self, url, counter):
+        if counter > 1:
+            raise http.client.InvalidURL
+        self.http.request('GET', url)
+        response = self.http.getresponse()
+        if 300 <= response.code < 400:
+            location_header = response.getheader('Location')
+            new_url = urlparse(location_header).path
+            response.read()
+            return self.make_request(new_url, counter + 1)
+        return response.read().decode('utf-8', 'ignore')
 
     def start_profiling(self, snapshot, index):
         cProfile.runctx('self.get_calc_save(snapshot, index)',
@@ -174,13 +183,13 @@ class Discover(Task):
                 self.update_state(state='PENDING',
                                   meta={'info': 'Fetching timestamps of '
                                                 + self.url + ' for year ' + year})
-                wayback_url = 'http://web.archive.org/cdx/search/cdx?url=' + self.url + \
+                wayback_url = '/cdx/search/cdx?url=' + self.url + \
                               '&' + 'from=' + year + '&to=' + year + '&fl=timestamp,digest&output=json'
                 if self.snapshots_number != -1:
                     wayback_url += '&limit=' + str(self.snapshots_number)
-                response = self.http.request('GET', wayback_url)
+                response = self.make_request(wayback_url, 0)
                 self._log.info('finished fetching timestamps of %s for year %s', self.url, year)
-                snapshots = json.loads(response.data.decode('utf-8'))
+                snapshots = json.loads(response)
 
                 if not snapshots:
                     self._log.error('no snapshots found for this year and url combination')
