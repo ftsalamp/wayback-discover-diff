@@ -5,37 +5,33 @@ import yaml
 from celery import Celery
 
 with open(os.environ['WAYBACK_DISCOVER_DIFF_CONF'], 'r') as ymlfile:
-    cfg = yaml.load(ymlfile)
+    CFG = yaml.load(ymlfile)
 
-app = Discover(cfg)
+APP = Discover(CFG)
 
 # Initialize Celery and register Discover task.
-celery = Celery(__name__, broker='redis://'+str(cfg['redis']['host'])+':'+str(cfg['redis']['port']))
-celery.conf.update(
-    CELERY_BROKER_URL='redis://'+str(cfg['redis']['host'])+':'+str(cfg['redis']['port']),
-    CELERY_RESULT_BACKEND='redis://'+str(cfg['redis']['host'])+':'+str(cfg['redis']['port'])
-)
-celery.register_task(app)
+celery = Celery(__name__, broker=CFG['celery_broker'], backend=CFG['celery_backend'])
+celery.register_task(APP)
 
 
 def test_no_url():
     url = None
     timestamp = '20141115130953'
-    result = app.timestamp_simhash(url, timestamp)
+    result = APP.timestamp_simhash(url, timestamp)
     assert json.dumps({'error': 'URL is required.'}) == result
 
 
 def test_no_timestamp():
     url = 'iskme.org'
     timestamp = None
-    result = app.timestamp_simhash(url, timestamp)
+    result = APP.timestamp_simhash(url, timestamp)
     assert json.dumps({'error': 'Timestamp is required.'}) == result
 
 
 def test_no_entry():
     url = 'nonexistingdomain.org'
     timestamp = '20180000000000'
-    result = app.timestamp_simhash(url, timestamp)
+    result = APP.timestamp_simhash(url, timestamp)
     assert json.dumps({'simhash': 'None'}) == result
 
 

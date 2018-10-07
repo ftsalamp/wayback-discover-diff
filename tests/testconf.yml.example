@@ -2,9 +2,9 @@ simhash:
     size: 128
     expire_after: 86400
 
-redis_uri: "redis://localhost:6379/1"
+test_redis_uri: "redis://localhost:6379/1"
 
-celery_queue_name: "wayback-discover-diff"
+celery_queue_name: "wayback-discover-diff-tests"
 celery_backend: "redis://localhost:6379/2"
 celery_broker: "redis://localhost:6379/3"
 
@@ -12,10 +12,10 @@ logfile:
     name: "log.txt"
     level: 20
 
-threads: 8
+threads: 3
 
 snapshots:
-    number_per_year: -1
+    number_per_year: 3
     number_per_page: 600
 
 cors:

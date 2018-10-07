@@ -1,7 +1,5 @@
 from wayback_discover_diff import Discover
-from lxml.html import fromstring, tostring
-from lxml.html import html5parser
-from lxml.html.clean import clean_html
+from bs4 import BeautifulSoup
 from itertools import groupby
 
 
@@ -25,8 +23,8 @@ def test_newlines_start_end():
  </body>
 </html>
 '''
-    lxml_result = calc_features_lxml(response)
-    bs_result = Discover.calc_features(None, response)
+    lxml_result = Discover.calc_features(None, response)
+    bs_result = calc_features(response)
     assert lxml_result == bs_result
 
 
@@ -44,8 +42,8 @@ def test_non_empty_comments():
  <!--> </span> <!-->
 </p>
     '''
-    lxml_result = calc_features_lxml(response)
-    bs_result = Discover.calc_features(None, response)
+    lxml_result = Discover.calc_features(None, response)
+    bs_result = calc_features(response)
     assert lxml_result == bs_result
 
 
@@ -64,8 +62,8 @@ def test_broken_end_tags():
  </body>
 </html>
     '''
-    lxml_result = calc_features_lxml(response)
-    bs_result = Discover.calc_features(None, response)
+    lxml_result = Discover.calc_features(None, response)
+    bs_result = calc_features(response)
     assert lxml_result == bs_result
 
 
@@ -100,8 +98,8 @@ def test_optional__end_tags():
  </body>
 </html>
 '''
-    lxml_result = calc_features_lxml(response)
-    bs_result = Discover.calc_features(None, response)
+    lxml_result = Discover.calc_features(None, response)
+    bs_result = calc_features(response)
     assert lxml_result == bs_result
 
 
@@ -127,8 +125,8 @@ def test_html():
  </body>
 </html>
 '''
-    lxml_result = calc_features_lxml(response)
-    bs_result = Discover.calc_features(None, response)
+    lxml_result = Discover.calc_features(None, response)
+    bs_result = calc_features(response)
     assert lxml_result == bs_result
 
 
@@ -157,8 +155,8 @@ def test_css_js():
  </body>
 </html>
 '''
-    lxml_result = calc_features_lxml(response)
-    bs_result = Discover.calc_features(None, response)
+    lxml_result = Discover.calc_features(None, response)
+    bs_result = calc_features(response)
     assert lxml_result == bs_result
 
 
@@ -179,22 +177,22 @@ Hello</html>     World</pre>
  </body>
 </html>
 '''
-    lxml_result = calc_features_lxml(response)
-    bs_result = Discover.calc_features(None, response)
+    lxml_result = Discover.calc_features(None, response)
+    bs_result = calc_features(response)
     assert lxml_result == bs_result
 
 
+def calc_features(response):
 
-def calc_features_lxml(response):
-    # use html5parser to heal html
-    e = html5parser.fromstring(response)
-    # get etree element
-    tree = fromstring(tostring(e))
-    # get rid of embedded content (scripts, css)
-    tree = clean_html(tree)
-    # get rid of markup
-    text = tree.text_content()
+    soup = BeautifulSoup(response, "lxml")
 
+    # kill all script and style elements
+    for script in soup(["script", "style"]):
+        script.extract()  # rip it out
+
+    # get text
+    text = soup.get_text()
+    # turn all characters to lowercase
     text = text.lower()
     # break into lines and remove leading and trailing space on each
     lines = (line.strip() for line in text.splitlines())

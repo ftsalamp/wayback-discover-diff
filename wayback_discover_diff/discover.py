@@ -13,7 +13,9 @@ import urllib3
 import redis
 from simhash import Simhash
 from surt import surt
-from bs4 import BeautifulSoup
+from lxml.html import fromstring, tostring
+from lxml.html import html5parser
+from lxml.html.clean import Cleaner
 
 # https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
 urllib3.disable_warnings()
@@ -124,16 +126,16 @@ class Discover(Task):
         self.save_to_redis(snapshot, simhash, index)
 
     def calc_features(self, response):
+        # use html5parser to heal html
+        e = html5parser.fromstring(response)
+        # get etree element
+        tree = fromstring(tostring(e))
+        # get rid of embedded content (scripts, css)
+        cleaner = Cleaner(style=True)
+        tree = cleaner.clean_html(tree)
+        # get rid of markup
+        text = tree.text_content()
 
-        soup = BeautifulSoup(response)
-
-        # kill all script and style elements
-        for script in soup(["script", "style"]):
-            script.extract()  # rip it out
-
-        # get text
-        text = soup.get_text()
-        # turn all characters to lowercase
         text = text.lower()
         # break into lines and remove leading and trailing space on each
         lines = (line.strip() for line in text.splitlines())

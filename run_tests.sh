@@ -2,7 +2,7 @@
 #Run Redis server
 redis-server &
 
-export WAYBACK_DISCOVER_DIFF_CONF=wayback_discover_diff/conf.yml
+export WAYBACK_DISCOVER_DIFF_CONF=tests/testconf.yml
 
 #Run tests
-pytest
+pytest -vv
