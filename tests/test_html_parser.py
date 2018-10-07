@@ -5,24 +5,24 @@ from itertools import groupby
 
 def test_newlines_start_end():
     response = '''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
-<html lang="en">
- <head>
-  <title>HTML Parsing: newlines at the start and end of elements</title>
-  <style type="text/css">
-   p { color: green; }
-   pre { background: red; }
-  </style>
- </head>
- <body>
-  <p>There should be no red below.</p>
-  <!-- a newline immediately after a start tag or immediately before
-  an end tag should be ignored, so the following element is empty. -->
-  <pre>
-
-</pre>
- </body>
-</html>
-'''
+    <html lang="en">
+     <head>
+      <title>HTML Parsing: newlines at the start and end of elements</title>
+      <style type="text/css">
+       p { color: green; }
+       pre { background: red; }
+      </style>
+     </head>
+     <body>
+      <p>There should be no red below.</p>
+      <!-- a newline immediately after a start tag or immediately before
+      an end tag should be ignored, so the following element is empty. -->
+      <pre>
+    
+    </pre>
+     </body>
+    </html>
+    '''
     lxml_result = Discover.calc_features(None, response)
     bs_result = calc_features(response)
     assert lxml_result == bs_result
@@ -31,16 +31,16 @@ def test_newlines_start_end():
 def test_non_empty_comments():
     response = '''
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
-<title>Non-empty comments</title>
-<style type="text/css">
- p { color: green; }
- span { color: red; }
-</style>
-<p>
- <!--> <span> <!-->
-  This line should be green.
- <!--> </span> <!-->
-</p>
+    <title>Non-empty comments</title>
+    <style type="text/css">
+     p { color: green; }
+     span { color: red; }
+    </style>
+    <p>
+     <!--> <span> <!-->
+      This line should be green.
+     <!--> </span> <!-->
+    </p>
     '''
     lxml_result = Discover.calc_features(None, response)
     bs_result = calc_features(response)
@@ -50,17 +50,17 @@ def test_non_empty_comments():
 def test_broken_end_tags():
     response = '''
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
-<html>
- <head>
-  <title>Parsing end tags with spaces (which are thus not end tags) </title>
- </head>
- <body>
-  <script type="text/javacript">
-    /* < /script> IF YOU SEE THIS THE TEST HAS FAILED <!-- */ // -->
-  </script>
-  <p>If this is the only line, this test has passed.</p>
- </body>
-</html>
+    <html>
+     <head>
+      <title>Parsing end tags with spaces (which are thus not end tags) </title>
+     </head>
+     <body>
+      <script type="text/javacript">
+        /* < /script> IF YOU SEE THIS THE TEST HAS FAILED <!-- */ // -->
+      </script>
+      <p>If this is the only line, this test has passed.</p>
+     </body>
+    </html>
     '''
     lxml_result = Discover.calc_features(None, response)
     bs_result = calc_features(response)
@@ -70,34 +70,34 @@ def test_broken_end_tags():
 def test_optional__end_tags():
     response = '''
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
-<html lang="en">
- <head>
-  <title>HTML Parsing: Optional DT end tags</title>
-  <style type="text/css">
-   dt { color: red; }
-   html > body > dl > dd > dl > dt { color: green; }
-  </style>
- </head>
- <body>
-  <dl>
-   <dd>
-    <dl>
-     <dt> This text should be green and indented. </dt>
-     <dt> This text should be green and indented. </dt>
-    </dl>
-   </dd>
-  </dl>
-  <dl>
-   <dd>
-    <dl>
-     <dt> This text should be green and indented. <!-- implied end tag -->
-     <dt> This text should be green and indented. </dt>
-    </dl>
-   </dd>
-  </dl>
- </body>
-</html>
-'''
+    <html lang="en">
+     <head>
+      <title>HTML Parsing: Optional DT end tags</title>
+      <style type="text/css">
+       dt { color: red; }
+       html > body > dl > dd > dl > dt { color: green; }
+      </style>
+     </head>
+     <body>
+      <dl>
+       <dd>
+        <dl>
+         <dt> This text should be green and indented. </dt>
+         <dt> This text should be green and indented. </dt>
+        </dl>
+       </dd>
+      </dl>
+      <dl>
+       <dd>
+        <dl>
+         <dt> This text should be green and indented. <!-- implied end tag -->
+         <dt> This text should be green and indented. </dt>
+        </dl>
+       </dd>
+      </dl>
+     </body>
+    </html>
+    '''
     lxml_result = Discover.calc_features(None, response)
     bs_result = calc_features(response)
     assert lxml_result == bs_result
@@ -106,25 +106,25 @@ def test_optional__end_tags():
 def test_html():
     response = '''
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
-<html lang="en">
- <head>
-  <title>HTML Parsing: DL</title>
-  <style type="text/css">
-   * { color: red; }
-   html > body > dl > dd > dl > dd { color: green; }
-  </style>
- </head>
- <body>
-  <dl>
-   <dd>
-    <dl>
-     <dd> This text should be green. </dd>
-    </dl>
-   </dd>
-  </dl>
- </body>
-</html>
-'''
+    <html lang="en">
+     <head>
+      <title>HTML Parsing: DL</title>
+      <style type="text/css">
+       * { color: red; }
+       html > body > dl > dd > dl > dd { color: green; }
+      </style>
+     </head>
+     <body>
+      <dl>
+       <dd>
+        <dl>
+         <dd> This text should be green. </dd>
+        </dl>
+       </dd>
+      </dl>
+     </body>
+    </html>
+    '''
     lxml_result = Discover.calc_features(None, response)
     bs_result = calc_features(response)
     assert lxml_result == bs_result
@@ -133,28 +133,28 @@ def test_html():
 def test_css_js():
     response = '''
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
-<html>
- <head>
-  <title>Parsing style blocks correctly</title>
-  <style type="text/css">/**/
-   p { color: green; }
-   &#x70; { color: yellow; background: red; }
-   .test:after { content: '&#x46;&#x41;&#x49;&#x4c;'; }
-  /**/</style>
- </head>
- <body>
-  <p>This line should be green.</p>
-  <div class="test">This line should end with a string of garbage: </div>
-  <pre id="result">(The script part of this test failed for probably unrelated reasons.)</pre>
-  <script type="text/javascript">
-   var s1 = document.getElementsByTagName('style')[0].firstChild.data;
-   var s2 = '/**/\n   p { color: green; }\n   &#x70; { color: yellow; background: red; }\n   .test:after { content: \'\&\#x46\;\&\#x4' + '1\;\&' + '\#x49\;\&\#x4c\;\'; }\n  /**/';
-   var result = s1 == s2;
-   document.getElementById('result').firstChild.data = result ? '' : 'The error is in the parser, which thought the <style> block contained:\n\n  <style ...>' + s1 + '<\/style>\n\nIt should have contained:\n\n  <style ...>' + s2 + '<\/style>';
-  </script>
- </body>
-</html>
-'''
+    <html>
+     <head>
+      <title>Parsing style blocks correctly</title>
+      <style type="text/css">/**/
+       p { color: green; }
+       &#x70; { color: yellow; background: red; }
+       .test:after { content: '&#x46;&#x41;&#x49;&#x4c;'; }
+      /**/</style>
+     </head>
+     <body>
+      <p>This line should be green.</p>
+      <div class="test">This line should end with a string of garbage: </div>
+      <pre id="result">(The script part of this test failed for probably unrelated reasons.)</pre>
+      <script type="text/javascript">
+       var s1 = document.getElementsByTagName('style')[0].firstChild.data;
+       var s2 = '/**/\n   p { color: green; }\n   &#x70; { color: yellow; background: red; }\n   .test:after { content: \'\&\#x46\;\&\#x4' + '1\;\&' + '\#x49\;\&\#x4c\;\'; }\n  /**/';
+       var result = s1 == s2;
+       document.getElementById('result').firstChild.data = result ? '' : 'The error is in the parser, which thought the <style> block contained:\n\n  <style ...>' + s1 + '<\/style>\n\nIt should have contained:\n\n  <style ...>' + s2 + '<\/style>';
+      </script>
+     </body>
+    </html>
+    '''
     lxml_result = Discover.calc_features(None, response)
     bs_result = calc_features(response)
     assert lxml_result == bs_result
@@ -163,20 +163,103 @@ def test_css_js():
 def test_mixed_head_body():
     response = '''
     <!DOCTYPE HTML>
-<html>
- <head>
-  <title>Spaces</title>
- </head>
- <body>
-  <p>The next five lines should be identical:</p>
-  <pre>Hello</head>     World
-Hello     World
-Hello</body>     World
-Hello     World
-Hello</html>     World</pre>
- </body>
-</html>
-'''
+    <html>
+     <head>
+      <title>Spaces</title>
+     </head>
+     <body>
+      <p>The next five lines should be identical:</p>
+      <pre>Hello</head>     World
+    Hello     World
+    Hello</body>     World
+    Hello     World
+    Hello</html>     World</pre>
+     </body>
+    </html>
+    '''
+    lxml_result = Discover.calc_features(None, response)
+    bs_result = calc_features(response)
+    assert lxml_result == bs_result
+
+
+def test_broken_frames():
+    response = '''
+    <!DOCTYPE HTML><html><head><title></title>
+    <frameset><frame><link><frame></frameset><frame><noframes>BBB</noframes><frame><link>'''
+    lxml_result = Discover.calc_features(None, response)
+    bs_result = calc_features(response)
+    assert lxml_result == bs_result
+
+
+def test_no_body():
+    response = '''
+    <!DOCTYPE HTML>
+    <title>DOM vs parser</title>
+    Welcome!
+    <script>
+     document.write('Name:<input> Age:');
+     document.body.appendChild(document.createElement('input'));
+    </script>
+    Thanks!'''
+    lxml_result = Discover.calc_features(None, response)
+    bs_result = calc_features(response)
+    assert lxml_result == bs_result
+
+
+def test_broken_table():
+    response = '''
+    <html>
+     <head>
+      <title> Ill-formed table content </title>
+      <style type="text/css">
+       * { border: solid fuchsia 1px; padding: 4px; margin: 4px; }
+      </style>
+     </head>
+     <body>
+      <p>This should look... just like it does in WinIE!</p>
+      <table>
+       pop me where?
+       <tr>
+        <td>
+         Cell 1
+        <td>
+         Cell 2
+        </td>
+        <td>
+         Cell 3
+       </tr>
+       <table> <!-- this implies a </table>, because it occurs in another <table> -->
+        where am i?
+        <tr>
+         <font> fonting <b> bolding </font> foo </b>
+         <td>
+          Inner Cell 1
+         <td>
+          Inner Cell 2
+        <tr>
+         Inner Row 2
+         <td>
+          Inner Cell 3
+         </td>
+         Inner Row 2 Again
+        </tr>
+        more text in the inner table
+       </table> <!-- closes second table -->
+       <tr> <!-- these unexpected table elements are just ignored -->
+        <td>
+         Cell 4
+        <td>
+         Cell 5
+        <td>
+         Cell 6
+       <tr>
+        <td>
+         Cell 7
+        </td>
+       </tr>
+      </table>
+     </body>
+    </html>'''
     lxml_result = Discover.calc_features(None, response)
     bs_result = calc_features(response)
     assert lxml_result == bs_result
